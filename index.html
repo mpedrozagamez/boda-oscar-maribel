@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Nos Casamos! - Oscar & Maribel</title>
+    <!-- Fuentes elegidas -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Great+Vibes&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --vinotinto: #753443;        /* Vinotinto vibrante y elegante */
+            --vinotinto-hover: #753443;  /* Vinotinto profundo */
+            --vinotinto-grad: linear-gradient(135deg, #943b52 0%, #943b52 100%);
+            --beis-claro: #fcf8f3;       /* Fondo marfil/beis suave */
+            --beis-card: #f6efe6;        /* Beis cálido para tarjetas */
+            --beis-dorado: #d4c3a3;      /* Detalle beis dorado */
+            --texto-oscuro: #2e1d21;     /* Texto principal */
+            --blanco: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            background-color: var(--beis-claro);
+            color: var(--texto-oscuro);
+            text-align: center;
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* ----------------------------------
+           PANTALLA DIDÁCTICA: SOBRE DE BODA
+        ----------------------------------- */
+        .envelope-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: radial-gradient(circle, #5b0a1e 0%, #2e1d21 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            transition: opacity 1s ease, visibility 1s ease;
+        }
+
+        .envelope-screen.opened {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .envelope-container {
+            position: relative;
+            width: 320px;
+            height: 220px;
+            background: #f6efe6;
+            border-radius: 6px;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5);
+            perspective: 1000px;
+        }
+
+        /* Solapa Superior */
+        .flap-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 160px solid transparent;
+            border-right: 160px solid transparent;
+            border-top: 125px solid #ebd9c1;
+            transform-origin: top;
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 3;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+        }
+
+        /* Solapas Inferiores y Cuerpo */
+        .envelope-pocket {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fcf8f3;
+            clip-path: polygon(0 0, 50% 48%, 100% 0, 100% 100%, 0 100%);
+            z-index: 2;
+            border-radius: 0 0 6px 6px;
+        }
+
+        /* Tarjeta Interna */
+        .letter-preview {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 290px;
+            height: 190px;
+            background: #ffffff;
+            border-radius: 4px;
+            border: 1px solid var(--beis-dorado);
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .letter-preview h3 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2.2rem;
+            color: var(--vinotinto);
+            font-weight: normal;
+        }
+
+        .letter-preview p {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--vinotinto);
+        }
+
+        /* Sello de Cera Interactivo */
+        .wax-seal {
+            position: absolute;
+            top: 105px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 68px;
+            height: 68px;
+            background: radial-gradient(circle, #9e183a 0%, #7e122b 70%, #5b0a1e 100%);
+            border-radius: 50%;
+            border: 2px solid var(--beis-dorado);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fcf8f3;
+            cursor: pointer;
+            z-index: 4;
+            transition: transform 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        .wax-seal:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .wax-seal span {
+            font-family: 'Great Vibes', cursive;
+            font-size: 1rem;
+            line-height: 1;
+        }
+
+        .wax-seal small {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.5rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--beis-dorado);
+            margin-top: -2px;
+        }
+
+        /* Animación al hacer clic */
+        .envelope-container.open .flap-top {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        .envelope-container.open .letter-preview {
+            transform: translate(-50%, -110px);
+        }
+
+        .envelope-container.open .wax-seal {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .click-hint {
+            color: var(--beis-dorado);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: 35px;
+            animation: fadeInOut 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(212, 195, 163, 0.5), 0 6px 15px rgba(0,0,0,0.4); }
+            70% { box-shadow: 0 0 0 16px rgba(212, 195, 163, 0), 0 6px 15px rgba(0,0,0,0.4); }
+            100% { box-shadow: 0 0 0 0 rgba(212, 195, 163, 0), 0 6px 15px rgba(0,0,0,0.4); }
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* ----------------------------------
+           ESTILOS DE LA INVITACIÓN
+        ----------------------------------- */
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+            background: var(--blanco);
+            box-shadow: 0px 10px 35px rgba(126, 18, 43, 0.12);
+            overflow: hidden;
+            border-left: 1px solid #ebd9c1;
+            border-right: 1px solid #ebd9c1;
+        }
+
+        header {
+            position: relative;
+            background: var(--blanco);
+            border-bottom: 2px solid var(--beis-dorado);
+        }
+
+        .hero-banner {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            overflow: hidden;
+        }
+
+        .hero-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, rgba(126, 18, 43, 0.25) 0%, rgba(0, 0, 0, 0) 40%, rgba(255, 255, 255, 0.75) 80%, var(--blanco) 100%);
+        }
+
+        .header-text {
+            position: relative;
+            padding: 0px 20px 40px 20px;
+            margin-top: -45px;
+            z-index: 2;
+        }
+
+        .subtitle {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--vinotinto);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3.8rem;
+            color: var(--vinotinto);
+            font-weight: normal;
+            line-height: 1.1;
+            margin-bottom: 8px;
+        }
+
+        .date-header {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-style: italic;
+            color: var(--texto-oscuro);
+        }
+
+        .countdown-section {
+            background: var(--vinotinto-grad);
+            color: var(--blanco);
+            padding: 32px 20px;
+        }
+
+        .countdown-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--beis-dorado);
+            margin-bottom: 20px;
+        }
+
+        .countdown-grid {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .countdown-box {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(212, 195, 163, 0.6);
+            padding: 12px 15px;
+            border-radius: 8px;
+            min-width: 75px;
+        }
+
+        .countdown-number {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2rem;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        .countdown-label {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.65rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--beis-dorado);
+            margin-top: 5px;
+        }
+
+        section {
+            padding: 40px 30px;
+            border-bottom: 1px solid #f0eae1;
+        }
+
+        h2 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2.8rem;
+            color: var(--vinotinto);
+            font-weight: normal;
+            margin-bottom: 10px;
+        }
+
+        .section-divider {
+            width: 60px;
+            height: 2px;
+            background-color: var(--beis-dorado);
+            margin: 0 auto 20px auto;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background: var(--vinotinto-grad);
+            color: var(--blanco);
+            text-decoration: none;
+            border-radius: 30px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(126, 18, 43, 0.3);
+            cursor: pointer;
+        }
+
+        .btn-whatsapp {
+            background: #25D366;
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.25);
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .detail-card {
+            background: var(--beis-card);
+            padding: 25px 15px;
+            border-radius: 10px;
+            border: 1px solid var(--beis-dorado);
+        }
+
+        .detail-card h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            color: var(--vinotinto);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .dresscode-card {
+            margin-top: 25px;
+            background: var(--beis-card);
+            padding: 25px 20px;
+            border-radius: 8px;
+            border: 1px dashed var(--beis-dorado);
+        }
+
+        .reserved-colors {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .color-dot {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 1px solid var(--beis-dorado);
+            vertical-align: middle;
+        }
+        .color-dot.white { background-color: #ffffff; }
+        .color-dot.beige { background-color: #e5d5c0; }
+
+        .dresscode-img {
+            width: 100%;
+            max-width: 220px;
+            height: auto;
+            margin: 15px auto 0 auto;
+            display: block;
+            mix-blend-mode: multiply;
+        }
+
+        .gift-box {
+            background: var(--beis-card);
+            border: 1px dashed var(--beis-dorado);
+            border-radius: 12px;
+            padding: 30px 20px;
+            margin-top: 15px;
+        }
+
+        footer {
+            padding: 30px 20px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            color: var(--vinotinto);
+            background: var(--beis-card);
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 480px) {
+            .hero-banner { height: 280px; }
+            h1 { font-size: 3.2rem; }
+            .countdown-grid { gap: 8px; }
+            .countdown-box { min-width: 60px; padding: 10px 8px; }
+            .countdown-number { font-size: 1.7rem; }
+            .details-grid { grid-template-columns: 1fr; }
+            .envelope-container { width: 280px; height: 195px; }
+            .flap-top { border-left-width: 140px; border-right-width: 140px; border-top-width: 110px; }
+            .letter-preview { width: 250px; height: 165px; }
+            .wax-seal { width: 60px; height: 60px; top: 92px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PANTALLA INICIAL: SOBRE INTERACTIVO -->
+    <div class="envelope-screen" id="envelopeScreen">
+        <div class="envelope-container" id="envelopeContainer">
+            <div class="flap-top"></div>
+            <div class="envelope-pocket"></div>
+            <div class="letter-preview">
+                <p>Nuestra Boda</p>
+                <h3>Oscar & Maribel</h3>
+            </div>
+            <!-- SELLO DE CERA CLICKABLE -->
+            <div class="wax-seal" id="waxSeal" onclick="openEnvelope()">
+                <span>O & M</span>
+                <small>Abrir</small>
+            </div>
+        </div>
+        <p class="click-hint">Toca el sello para abrir la invitación</p>
+    </div>
+
+    <!-- CONTENIDO DE LA INVITACIÓN -->
+    <div class="container">
+        <header>
+            <div class="hero-banner">
+                <img src="https://lh3.googleusercontent.com/d/1cA8FCqkeBV51w_ys1_cHOKVaObLC50m3" alt="Foto de la pareja" class="hero-photo">
+                <div class="hero-overlay"></div>
+            </div>
+            <div class="header-text">
+                <p class="subtitle">Nuestra Boda</p>
+                <h1>Oscar & Maribel</h1>
+                <p class="date-header">28 de Noviembre, 2026</p>
+                
+            </div>
+        </header>
+
+        <!-- CUENTA REGRESIVA -->
+        <div class="countdown-section">
+            <p class="countdown-title">Faltan únicamente</p>
+            <div class="countdown-grid">
+                <div class="countdown-box">
+                    <div class="countdown-number" id="days">00</div>
+                    <div class="countdown-label">Días</div>
+                </div>
+                <div class="countdown-box">
+                    <div class="countdown-number" id="hours">00</div>
+                    <div class="countdown-label">Horas</div>
+                </div>
+                <div class="countdown-box">
+                    <div class="countdown-number" id="minutes">00</div>
+                    <div class="countdown-label">Min</div>
+                </div>
+                <div class="countdown-box">
+                    <div class="countdown-number" id="seconds">00</div>
+                    <div class="countdown-label">Seg</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MENSAJE -->
+        <section>
+            <h2>Un Amor Inolvidable</h2>
+            <div class="section-divider"></div>
+            <p>Hay momentos en la vida que son mágicos por sí solos, pero compartirlos con las personas que más amamos los convierte en recuerdos eternos. ¡Queremos que seas parte de nuestra gran celebración!</p>
+        </section>
+
+        <!-- DETALLES -->
+        <section>
+            <h2>Detalles del Evento</h2>
+            <div class="section-divider"></div>
+            
+                <div class="detail-card">
+                    <h3>Ceremonia</h3>
+                    <p style="font-family: Arial, sans-serif;"><strong>03:00 PM</strong><br>Catedral Ecce Homo</p>
+                    <p>Haz clic en el siguiente botón para obtener la ruta en GPS:</p>
+            <a href="https://www.google.com/maps/place/Catedral+Ecce+Homo/@10.4707473,-73.2588012,17z/data=!3m1!4b1!4m6!3m5!1s0x8e8ab9d3698109a3:0xb896ba6152314500!8m2!3d10.4707473!4d-73.2562263!16s%2Fg%2F11hz_jgdff?entry=ttu&g_ep=EgoyMDI2MDcyMC4wIKXMDSoASAFQAw%3D%3D" target="_blank" class="btn">Ver en Google Maps</a>
+                    <div style="width: 100%; max-width: 600px; margin: 20px auto;">
+                        <iframe
+                            src="https://www.google.com/maps?q=Catedral+Ecce+Homo,+Valledupar,+Colombia&output=embed"
+                            width="100%"
+                            height="350"
+                            style="border:0; border-radius:15px;"
+                            allowfullscreen=""
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>        
+                </div>
+                <div class="section-divider"></div>
+                <div class="detail-card">
+                    <h3>Recepción</h3>
+                    <p style="font-family: Arial, sans-serif;"><strong>06:30 PM</strong><br>Casa campo Villa Castilla<br>Vía La Paz, Unidad Campestre Las Marías</p>
+                    <p>Haz clic en el siguiente botón para obtener la ruta en GPS:</p>
+            <a href="https://www.google.com/maps/place/Catedral+Ecce+Homo/@10.4707473,-73.2588012,17z/data=!3m1!4b1!4m6!3m5!1s0x8e8ab9d3698109a3:0xb896ba6152314500!8m2!3d10.4707473!4d-73.2562263!16s%2Fg%2F11hz_jgdff?entry=ttu&g_ep=EgoyMDI2MDcyMC4wIKXMDSoASAFQAw%3D%3D" target="_blank" class="btn">Ver en Google Maps</a>
+                    <div style="width: 100%; max-width: 600px; margin: 20px auto;">
+                        <iframe
+                            src="https://www.google.com/maps?q=Villa+Castilla,+Valledupar,+Colombia&output=embed"
+                            width="100%"
+                            height="350"
+                            style="border:0; border-radius:15px;"
+                            allowfullscreen=""
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div> 
+                </div>
+                       
+            <div class="dresscode-card">
+                <p style="font-family: 'Montserrat', sans-serif; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; color: var(--vinotinto); margin-bottom: 8px; font-weight: 600;">Código de Vestimenta</p>
+                
+                <div style="margin: 12px 0; font-size: 1.05rem; line-height: 1.6;">
+                    <p><strong>Hombres:</strong> Camisa o Guayabera (sin traje)</p>
+                    <p><strong>Mujeres:</strong> Vestido largo o Set largo (al gusto)</p>
+                </div>
+
+                <div class="reserved-colors">
+                    <span>Colores reservados para la novia:</span>
+                    <span><strong>Blanco</strong> <span class="color-dot white"></span></span>
+                    <span>y <strong>Beis</strong> <span class="color-dot beige"></span></span>
+                </div>
+
+                <img src="https://tse2.mm.bing.net/th/id/OIP.pCIRy4vwzwKfOYeduaZwdgHaHa?w=198&h=198&c=7&r=0&o=7&pid=1.7&rm=3" alt="Ejemplo de Vestuario Formal" class="dresscode-img">
+            </div>
+        </section>
+
+        <!-- UBICACIÓN 
+        <section>
+            <h2>Ubicación</h2>
+            <div class="section-divider"></div>
+            <p>Haz clic en el siguiente botón para obtener la ruta en GPS:</p>
+            <a href="https://www.google.com/maps/place/Catedral+Ecce+Homo/@10.4707473,-73.2588012,17z/data=!3m1!4b1!4m6!3m5!1s0x8e8ab9d3698109a3:0xb896ba6152314500!8m2!3d10.4707473!4d-73.2562263!16s%2Fg%2F11hz_jgdff?entry=ttu&g_ep=EgoyMDI2MDcyMC4wIKXMDSoASAFQAw%3D%3D" target="_blank" class="btn">Ver en Google Maps</a>
+        </section>-->
+
+        <!-- LLUVIA DE SOBRES -->
+        <section>
+            <h2>Lluvia de Sobres</h2>
+            <div class="section-divider"></div>
+            <div class="gift-box">
+                <span style="font-size: 2rem; margin-bottom: 10px; display: block;">✉️</span>
+                <p>Su presencia en nuestra boda es el mejor regalo que podemos recibir. Sin embargo, si desean hacernos un presente, dispondremos de un buzón para <strong>lluvia de sobres</strong> el día del evento.</p>
+            </div>
+        </section>
+
+        <!-- CONFIRMACIÓN -->
+        <section>
+            <h2>Cupos y Asistencia</h2>
+            <div class="section-divider"></div>
+            
+            <div style="background: var(--beis-card); padding: 20px; border-radius: 10px; border: 1px solid var(--beis-dorado); margin-top: 20px; display: inline-block;">
+                <p style="font-family: 'Montserrat', sans-serif; font-size: 0.85rem; letter-spacing: 2px; color: var(--vinotinto); text-transform: uppercase; margin-bottom: 10px; font-weight: 600;">Cupos Reservados</p>
+                <h2><strong>2 Cupos</strong></h2>
+                <p style="font-size: 1.15rem;">Hemos reservado este número de lugares en tu honor.</p>
+            </div>
+
+            <p style="margin-top: 25px;">Por favor, regálanos tu confirmación antes del <strong>1 de Octubre, 2026</strong>.</p>
+            <a href="https://wa.me/3006318871?text=¡Hola!%20Confirmo%20con%20mucha%20alegría%20mi%20asistencia%20a%20la%20boda." target="_blank" class="btn btn-whatsapp">Confirmar por WhatsApp</a>
+        </section>
+
+        <footer>
+            <p>¡Te esperamos con mucha ilusión!</p>
+        </footer>
+    </div>
+
+    <!-- JAVASCRIPT ANIMACIÓN -->
+    <script>
+        function openEnvelope() {
+            const container = document.getElementById('envelopeContainer');
+            const screen = document.getElementById('envelopeScreen');
+            
+            // Inicia la rotación 3D de la solapa y la subida de la carta
+            container.classList.add('open');
+
+            // Hace la transición de opacidad hacia el sitio web
+            setTimeout(() => {
+                screen.classList.add('opened');
+            }, 1200);
+        }
+
+        // Cuenta Regresiva
+        const weddingDate = new Date(2026, 10, 28, 15, 0, 0).getTime();
+
+        const updateCountdown = () => {
+            const now = new Date().getTime();
+            const difference = weddingDate - now;
+
+            if (difference > 0) {
+                const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+                document.getElementById('days').innerText = days < 10 ? '0' + days : days;
+                document.getElementById('hours').innerText = hours < 10 ? '0' + hours : hours;
+                document.getElementById('minutes').innerText = minutes < 10 ? '0' + minutes : minutes;
+                document.getElementById('seconds').innerText = seconds < 10 ? '0' + seconds : seconds;
+            } else {
+                document.getElementById('days').innerText = '00';
+                document.getElementById('hours').innerText = '00';
+                document.getElementById('minutes').innerText = '00';
+                document.getElementById('seconds').innerText = '00';
+            }
+        };
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+    </script>
+</body>
+</html>
